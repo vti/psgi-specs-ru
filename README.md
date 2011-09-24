@@ -6,4 +6,4 @@
 
     Илья Чесноков (http://github.com/ichesnokov)
     Денис Федосеев (http://github.com/alpha6)
-    Вячеслав Тихановский (http://github.com)
+    Вячеслав Тихановский (http://github.com/vti)
