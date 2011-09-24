@@ -123,10 +123,6 @@ L<JSGI|http://jackjs.org/jsgi-spec.html>), за исключением тех с
 
 =item *
 
-C<REQUEST_METHOD>: The HTTP request method, such as "GET" or
-"POST". This B<MUST NOT> be an empty string, and so is always
-required.
-
 C<REQUEST_METHOD>: Метод HTTP запроса, такой как "GET" или "POST".
 Это B<НЕ ДОЛЖНА> быть пустая строка, так что метод всегда должен
 присутствовать.
