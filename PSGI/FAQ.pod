@@ -358,24 +358,21 @@ C<< [ key => value, key => value ] >> самое простое решение �
 простоты адаптеров фреймворков и серверов. Другие возможности, как ссылка на
 массив или обычный скаляр, делают код излишне муторным.
 
-=head3 I want to send Unicode content in the HTTP response. How can I do so?
+=head3 Я хочу отправлять Unicode данные в HTTP ответе. Как я могу это сделать?
 
-PSGI mocks wire protocols like CGI, and the interface doesn't care too
-much about the character encodings and string semantics. That means,
-all the data on PSGI environment values, content body etc. are sent as
-byte strings, and it is an application's responsibility to properly
-decode or encode characters such that it's being sent over HTTP.
+PSGI имитирует протокол CGI и интерфейс сильно не заботится о символьной
+кодировке или строковой семантике. Это значит, что все данные в PSGI окружении,
+теле ответа и пр. отправляются как байты, и это обязанность приложения правильно
+декодировать или кодировать символы для отправки по HTTP.
 
-If you have a decoded string in your application and want to send them
-in C<UTF-8> as an HTTP body, you should use L<Encode> module to encode
-it to utf-8. Note that if you use one of PSGI-supporting frameworks,
-chances are that they allow you to set Unicode text in the response
-body and they do the encoding for you. Check the documentation of your
-framework to see if that's the case.
+Если есть декодированная строка в приложении и необходимо отправить данные как
+C<UTF-8> в теле HTTP, нужно использовать модуль L<Encode> для кодирования в
+utf-8. Если используется PSGI фреймворк, есть возможность, что он позволяет
+устанавливать текст ответа в Unicode. Стоит проверить документацию фреймворка
+так это или нет.
 
-This design decision was made so it gives more flexibility to PSGI
-applications and frameworks, without putting complicated work into
-PSGI web servers and interface specification itself.
+Это решение было принятно для большей гибкости PSGI приложений и фреймворков,
+без добавления сложностей в PSGI серверы и в саму спецификацию интерфейса.
 
 =head3 No iterators support in $body?
 
