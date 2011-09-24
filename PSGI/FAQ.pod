@@ -302,66 +302,61 @@ L<HTTP::Engine::Response> API:
 
 Метод C<request_handler> это и есть PSGI приложение.
 
-=head2 API Design
+=head2 API Дизайн
 
-Keep in mind that most design choices made in the PSGI spec are to
-minimize the requirements on backends so they can optimize things.
-Adding a fancy interface or allowing flexibility in the PSGI layers
-might sound catchy to end users, but it would just add things that
-backends have to support, which would end up getting in the way of
-optimizations, or introducing more bugs. What makes a fancy API to
-attract web application developers is your framework, not PSGI.
+Стоит учитывать, что большинство вопросов проектирования в PSGI спецификации
+обусловлены минимизацией требований к серверным приложениям, чтобы они могли
+по-своему оптимизировать. Добавление модного интерфейса или излишняя гибкость на
+разных уровнях PSGI может звучать притягательно для пользователей, но это только
+добавит вещей, которые серверы должны поддерживать, что будет стоять на пути
+оптимизации, или будет добавлять ошибки. Привлекать разработчиков с помощью
+модного API должен фреймворк, а не PSGI.
 
-=head3 Why a big env hash instead of objects with APIs?
+=head3 Почему большой хеш окружения вместо объектов с API?
 
-The simplicity of the interface is the key that made WSGI and Rack
-successful. PSGI is a low-level interface between backends and web
-application framework developers. If we define an API on what type of
-objects should be passed and which method they need to implement,
-there will be so much duplicated code in the backends, some of
-which may be buggy.
+Простота интерфейса это ключевая делать, которая сделала WSGI и Rack успешными.
+PSGI это низкоуровневый интерфейс между серверами и разработчиками веб
+фреймворков. Если бы требовалось API какого типа объект должен передаваться и
+какие методы он должен реализовывать, будет слишком много дублирующего кода в
+серверных приложениях, части которых могут содержать ошибки.
 
-For instance, PSGI defines C<< $env->{SERVER_NAME} >> as a
-string. What if the PSGI spec required it to be an instance of Net::IP?
-Backend code would have to depend on the Net::IP module, or have to
-write a mock object that implements ALL of Net::IP's methods.
-Backends depending on specific modules or having to reinvent lots
-of stuff is considered harmful and that's why the interface is as minimal
-as possible.
+Например, PSGI определяет C<< $env->{SERVER_NAME} >> как строку. Что если PSGI
+спецификация требовала объект типа Net::IP? Код серверного приложения должен
+будет зависеть от модуля Net::IP, или реализовывать похожий объект с таким же
+интерфейсом, реализовывая ВСЕ методы Net::IP. Серверы, которые зависят от
+специфических модулей или вынуждены реализовывать новые велосипеды, считаются
+вредными и поэтому интерфейс остается минимальным насколько это возможно.
 
-Making a nice API for the end users is a job that web application
-frameworks (adapter developers) should do, not something PSGI needs to
-define.
+Разработка хорошего API для конечных пользователей должно быть работой веб
+фреймворка (разработчиков адаптеров), а не чем-то, что определяется PSGI.
 
-=head3 Why is the application a code ref rather than an object with a ->call method?
+=head3 Почему приложение это CODEREF, а не объект с методом ->call?
 
-Requiring an object I<in addition to> a code ref would make EVERY
-backend's code a few lines more tedious, while requiring an object
-I<instead of> a code ref would make application developers write
-another class and instanciate an object.
+Требование объекта I<в дополнение к> CODEREF сделает КАЖДОЕ серверное приложение
+на несколько строчек длиннее, а требование объекта I<вместо> CODEREF будет
+вынуждать разработчиков приложения реализовывать очередной класс и создавать его
+экземпляр.
 
-In other words, yes an object with a C<call> method could work, but
-again PSGI was designed to be as simple as possible, and making a code
-reference out of class/object is no brainer but the other way round
-always requires a few lines of code and possibly a new file.
+Другими словами, да, объект с методом C<call> будет работать, но, опять же, PSGI
+был спроектирован минимальным насколько это возможно, и сделать из объекта
+CODEREF совсем не сложно, что в обратном случае требует несколько дополнительных
+строчек и, возможно, даже новый файл.
 
-=head3 Why are the headers returned as an array ref and not a hash ref?
+=head3 Почему заголовки возвращаются как ссылка на массив, а не ссылка на хеш?
 
-Short: In order to support multiple headers (e.g. C<Set-Cookie>).
+Если коротко: Для поддержки заголовков с одинаковыми именами (например, C<Set-Cookie>).
 
-Long: In Python WSGI, the response header is a list of (C<header_name>,
-C<header_value>) I<tuples> i.e. C<type(response_headers) is ListType>
-so there can be multiple entries for the same header key. In Rack and
-JSGI, a header value is a String consisting of lines separated by
-"C<\n>".
+Если длинно: В Python WSGI заголовки ответа это список (C<header_name>,
+C<header_value>) I<кортежей>, например, C<type(response_headers) is ListType>,
+поэтому у каждого заголовка может быть несколько значений. В Rack и JSGI
+значение заголовка это String состоящая из строк разделенных "C<\n>".
 
-We liked Python's specification here, and since Perl hashes don't
-allow multiple entries with the same key (unless it's C<tie>d), using
-an array reference to store C<< [ key => value, key => value ] >> is
-the simplest solution to keep both framework adapters and
-backends simple. Other options, like allowing an array ref
-in addition to a plain scalar, make either side of the code
-unnecessarily tedious.
+Спецификация Python кажется наиболее приемлимой, но так как в Perl хеши не могут
+содержать записи с одинаковыми ключами (исключение составляют C<tie>),
+использование ссылки на массив для хранения значений
+C<< [ key => value, key => value ] >> самое простое решение для обеспечения
+простоты адаптеров фреймворков и серверов. Другие возможности, как ссылка на
+массив или обычный скаляр, делают код излишне муторным.
 
 =head3 I want to send Unicode content in the HTTP response. How can I do so?
 
