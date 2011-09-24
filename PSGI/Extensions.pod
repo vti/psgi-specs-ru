@@ -1,63 +1,59 @@
-=head1 NAME
+=head1 НАЗВАНИЕ
 
-PSGI::Extensions - PSGI extentions
+PSGI::Extensions - Расширения PSGI
 
-=head1 SPECIFICATION
+=head1 Спецификация
 
-The PSGI environment B<MAY> include the following additional
-extensions. They are B<OPTIONAL> and applications and middleware
-components B<SHOULD> check if they exist in the environment before
-using the functionality provided.
+PSGI окружение B<МОЖЕТ> включать следующие дополнительные расширения.
+Они B<ОПЦИОНАЛЬНЫ> и приложения и middleware B<ДОЛЖНЫ> проверять их 
+наличие перед использование предоставляемого расширениями функционала.
 
 =over 4
 
 =item *
 
-C<psgix.io>: The raw IO socket to access the client connection to do
-low-level socket operations. This is only available in PSGI servers
-that run as an HTTP server, and should be used when (and only when)
-you want to I<jailbreak> out of PSGI abstraction, to implement
-protocols over HTTP such as BOSH or WebSocket.
+C<psgix.io>: IO-сокет для прямого доступа клиентских соединений к низкоуровневым 
+операциям. Доступен только когда PSGI сервера запущены как HTTP сервер,
+и должен использоваться тогда ( и только тогда ) когда вы хотите выйти за пределы
+PSGI абстракций, для реализации протоколов поверх HTTP, например BOSH или WebSocket.
 
 =item *
 
-C<psgix.input.buffered>: A boolean which is true if the HTTP request
-body (for POST or PUT requests) is buffered using a temporary
-filehandle or PerlIO in C<psgi.input>. When this is set, applications
-or middleware components can safely C<read> from C<psgi.input> without
-worrying about non-blocking I/O and then can call C<seek> to rewind
-the input for the transparent access.
+C<psgix.input.buffered>: Возвращает булево значение True если тело HTTP запроса
+( для POST или PUT запросов ) буферизированно с использованием временного файла
+или PerlIO в C<psgi.input>. Если значение установлено - приложение или middleware
+компоненты могут безопасно C<читать> из C<psgi.input> без беспокойства о 
+неблокирующем I/O и могут использовать C<seek> для прозрачного перехода по входным
+данным.
 
 =item *
 
-C<psgix.logger>: A code reference to log messages. The code reference
-is passed one argument as a hash reference that represents a message
-to be logged. The hash reference B<MUST> include at least two keys:
-C<level> and C<message> where C<level> B<MUST> be one of the following
-strings: C<debug>, C<warn>, C<info>, C<error> and C<fatal>. C<message>
-B<SHOULD> be a plain string or a scalar variable that stringifies.
+C<psgix.logger>: Интерфейс к логу сообщений. Этот интерфейс принимает один аргумент
+в виде ссылки на хэш содержащий сообщение которое необходимо добавит в лог.
+Эта ссылка на хэш B<ДОЛЖНА> включать два ключа:
+C<level> и C<message> где C<level> B<ДОЛЖЕН> быть одной из следующих строк:
+C<debug>, C<warn>, C<info>, C<error> или C<fatal>. C<message> B<ДОЛЖНА> быть простой 
+строкой или скалярной переменной со строкой. 
 
 =item *
 
-C<psgix.session>: A hash reference for storing and retrieving session
-data. Updates made on this hash reference B<SHOULD> be persisted by
-middleware components and B<SHOULD> be restored in the succeeding
-requests. How to persist and restore session data, as well as how to
-identify the requesting clients are implementation specific.
+C<psgix.session>: Ссылка на хэш для сохранения и получения данных сессии.
+Измнения сделанные с этим хэшем B<ДОЛЖНЫ> сохраняться middleware компонентами и
+B<ДОЛЖНЫ> быть восстановлены при следующих запросах. Сохранение и восстановление 
+данных сессии, а так же идентификация запрашивающих клиентов зависит от реализации.
 
-C<psgix.session.options>: A hash reference to tell Middleware
-components how to manipulate session data after the request.
-Acceptable keys and values are implementation specific.
+C<psgix.session.options>: Ссылка на хэш сообщающая middleware компонентам как 
+работать с данными сессии после запроса. Принимаемые ключи и значения зависят от 
+реализации.
 
 =item *
 
-C<psgix.harakiri>: A boolean which is true if the PSGI server supports
-harakiri mode, that kills a worker (typically a forked child process)
-after the current request is complete.
+C<psgix.harakiri>: Возвращает true если PSGI сервер поддерживает режим харакири,
+он закрывает воркеров ( обычно форкнутые процессы ) после выполнения запроса.
 
-C<psgix.harakiri.commit>: A boolean which is set to true by the PSGI
-application or middleware when it wants the server to kill the worker
-after the current request.
+C<psgix.harakiri.commit>: Булево значение, устанавливается в true PSGI приложением
+или middleware если они хотят чтобы сервер закрыл воркера после выполнения текущего
+запроса.
 
 =back
 
