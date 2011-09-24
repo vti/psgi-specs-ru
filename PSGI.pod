@@ -2,36 +2,36 @@
 
 =head1 NAME
 
-PSGI - Perl Web Server Gateway Interface Specification
+PSGI - Спецификация Веб-серверного Шлюзового Интерфейса для Perl
 
 =head1 ABSTRACT
 
-This document specifies a standard interface between web servers and
-Perl web applications or frameworks. This interface is designed to promote web application
-portability and reduce the duplication of effort by web application
-framework developers.
+Этот документ определяет стандартный интерфейс между веб-серверами
+и веб-приложениями или фреймворками на Perl. Этот интерфейс призван содействовать
+портабельности веб-приложений и сокращению дублирования усилий разработчиков
+веб-фреймворков.
 
-Please keep in mind that PSGI is not Yet Another web application
-framework. PSGI is a specification to decouple web server environments
-from web application framework code. Nor is PSGI a web application
-API. Web application developers (end users) will not run their web
-applications directly using the PSGI interface, but instead are
-encouraged to use frameworks that support PSGI.
+Пожалуйста имейте в виду, что PSGI - не просто "Ещё Один Веб-фреймворк".
+PSGI - это спецификация, предназначенная для отделения среды веб-сервера
+от кода веб-фреймворка. Также PSGI не является программным интерфейсом (API)
+для веб-приложений. Разработчики веб-приложений (конечные пользователи) не будут
+запускать свои веб-приложения используя PSGI напрямую - вместо этого предполагается
+использование фреймворков, поддерживающих PSGI.
 
 =head1 TERMINOLOGY
 
 =over 4
 
-=item Web Servers
+=item Веб-серверы
 
-I<Web servers> accept HTTP requests issued by web clients,
-dispatching those requests to web applications if configured to do so,
-and return HTTP responses to the request-initiating clients.
+I<Веб-серверы> принимают HTTP запросы от веб-клиентов,
+передают эти запросы веб-приложениям, если сконфигурированы делать это,
+и возвращают HTTP ответы инициировавшим запрос клиентам.
 
-=item PSGI Server
+=item PSGI сервер
 
-A I<PSGI Server> is a Perl program providing an environment for a
-I<PSGI application> to run in.
+I<PSGI сервер> - это программа на Perl, предоставляющая среду для запуска
+в ней I<PSGI приложения>.
 
 PSGI specifying an interface for web applications and the main purpose
 of web applications being to be served to the Internet, a I<PSGI
