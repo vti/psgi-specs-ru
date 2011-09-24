@@ -1,240 +1,227 @@
 =head1 NAME
 
-PSGI::FAQ - Frequently Asked Questions and answers
+PSGI::FAQ - Часто задаваемые вопросы и ответы
 
-=head1 QUESTIONS
+=head1 ВОПРОСЫ
 
-=head2 General
+=head2 Общие вопросы
 
-=head3 How do you pronounce PSGI?
+=head3 Как произносится PSGI?
 
-We read it simply P-S-G-I.
+Да просто Пэ-эС-Гэ-АЙ.
 
-=head3 So what is this?
+=head3 Так что же это?
 
-PSGI is an interface between web servers and perl-based web
-applications akin to what CGI does for web servers and CGI scripts.
+PSGI это интерфейс между веб серверами и Perl веб приложениями аналогично тому,
+чем является CGI для серверов и CGI скриптов.
 
-=head3 Why do we need this?
+=head3 Зачем это нам нужно?
 
-Perl has L<CGI> as a core module that somewhat abstracts the
-difference between CGI, mod_perl and FastCGI. However, most web
-application framework developers (e.g. Catalyst and Jifty) usually
-avoid using it to maximize the performance and to access low-level
-APIs. So they end up writing adapters for all of those different
-environments, some of which may be well tested while others are not.
+Модуль CGI поставляется вместе с Perl, что в некотором роде обеспечивает
+абстракцию над CGI, mod_perl и FastCGI. Однако большинство разработчиков веб
+фреймворков (например, Catalyst и Jifty) обычно не используют этот модуль для
+обеспечения производительности и доступа к низкоуровневым API. Поэтому они в
+итоге приходят к написанию адаптеров для всех окружений, некоторые из которых
+могут быть оттестированы лучше других.
 
-PSGI allows web application framework developers to only write an
-adapter for PSGI.  End users can choose from among all the backends that
-support the PSGI interface.
+PSGI позволяет разработчикам веб фреймворков реализовывать только адаптер для
+PSGI. Конечные же пользователи могут выбирать любые поддерживающие PSGI
+интерфейс серверные приложения.
 
-=head3 You said PSGI is similar to CGI. How is the PSGI interface different from CGI?
+=head3 PSGI похож на CGI. Каким образом PSGI интерфейс отличается от CGI?
 
-The PSGI interface is intentionally designed to be very similar to CGI so
-that supporting PSGI in addition to CGI would be extremely easy. Here's
-a highlight of the key differences between CGI and PSGI:
-
-=over 4
-
-=item *
-
-In CGI, servers are the actual web servers written in any languages
-but mostly in C, and script is a script that can be written in any
-language such as C, Perl, Shell scripts, Ruby or Python.
-
-In PSGI, servers are still web servers, but they're perl processes that
-are usually embedded in the web server (like mod_perl) or a perl daemon
-process called by a web server (like FastCGI), or an entirely perl based
-web server. And PSGI application is a perl code reference.
-
-=item *
-
-In CGI, we use STDIN, STDERR, and environment variables to read
-parameters and the HTTP request body and to send errors from the
-application.
-
-In PSGI, we use the C<$env> hash references and the I<psgi.input> and
-I<psgi.errors> streams to pass that data between servers and applications.
-
-=item *
-
-In CGI, applications are supposed to print HTTP headers and body to
-STDOUT to pass it back to the web server.
-
-In PSGI, applications are supposed to return a HTTP status code,
-headers, and body (as an array ref or a filehandle-like object) to the
-application as an array reference.
-
-=back
-
-=head3 My framework already does CGI, FCGI and mod_perl. Why do I want to support PSGI?
-
-There are many benefits for the web application framework to support PSGI.
+PSGI интерфейс намеренно спроектирован очень похожим на CGI, чтобы поддержка
+PSGI в дополнение к CGI была как можно проще.
 
 =over 4
 
 =item *
 
-You can stop writing code to support many web server
-environments.
+В CGI серверы это фактически веб серверы написанные на любом языке, в
+основном на C, и скрипт это скрипт, который также может быть написан на любом
+языке таком как C, Perl, Shell скриптах, Ruby или Python.
 
-Plack has a lot of well-tested server adapters to environments such as
-CGI, FastCGI and mod_perl. There are also many new web servers built
-to support the PSGI standard interface, such as L<Starman>, L<Starlet>
-and L<Twiggy>. Once your framework supports PSGI, there's nothing you
-need to do to run your application on these new web servers. You can
-get that I<for free>.
-
-Also, even if your framework already supports most server environments
-like discussed above, you can now drop these code in favor of only
-supporting PSGI. This is what L<Jifty> and L<Catalyst> have done, when
-they implemented the PSGI support. Less code means less bugs :)
+В PSGI серверы тоже веб серверы, но это уже perl процессы, которые обычно
+встраиваются в веб сервер (как mod_perl) или же perl демоны, которые вызываются
+веб сервером (как FastCGI), или веб серверы полностью реализованные на Perl. И
+PSGI приложение это ссылка на Perl подпрограмму.
 
 =item *
 
-Your framework can now use all of Plack middleware components.
+В CGI мы используем STDIN, STDERR и переменные окружения для чтения параметров,
+тела HTTP запроса и сообщений об ошибках.
 
-Just search for C<Plack::Middleware> on CPAN and you'll see hundreds
-of PSGI compatible middleware components. They're often newly created,
-but also extracted from plugins for certain web frameworks such as
-L<Catalyst>. By supporting PSGI interface, your framework can make use
-of all of these useful middleware, such as session management, content
-caching, URL rewriting and debug panel to name just a few.
+В PSGI мы используем ссылки на хеш C<$env> и потоки I<psgi.input> и
+I<psgi.errors> для передачи данных между серверами и приложениями.
 
 =item *
 
-You can test the application using the consistent L<Plack::Test> interface.
+В CGI приложения должны отдавать HTTP заголовки и тело в STDOUT, чтобы передать
+это обратно веб серверу.
 
-Any PSGI application can be tested using L<Plack::Test>, either
-through a mock request or a live server implementation. There's also
-L<Test::WWW::Mechanize::PSGI> to allow Mechanize-style testing.
+В PSGI приложения должны вернуть код статуса HTTP, заголовки и тело (как ссылку
+на массив или filehandle объект) серверу в качестве ссылки на массив.
 
 =back
 
-=head3 I'm writing a web application. What's the benefit of PSGI for me?
+=head3 Мой фреймворк уже поддерживает CGI, FCGI и mod_perl. Зачем мне поддерживаеть PSGI?
 
-If the framework you're using supports PSGI, that means your
-application can run on any of existing and future PSGI
-implementations. You can provide a C<.psgi> file that returns PSGI
-application, the end users of your application should be able to
-configure and run your application in a bunch of different ways.
+Есть много разных преимуществ в поддержке PSGI для веб фреймворка.
 
-=head3 But I'm writing a web application in CGI and it works well. Should I switch to PSGI?
+=over 4
 
-If you're writing a web application with a plain CGI.pm and without
-using any web frameworks, you're limiting your application in the
-plain CGI environments, along with mod_perl and FastCGI with some
-tweaks. If you're the only one developer and user of your application
-then that's probably fine.
+=item *
 
-One day you want to deploy your application in a shared hosting
-environment for your clients, or run your server in the standalone
-mode rather than as a CGI script, or distribute your application as
-open source software. Limiting your application in the CGI environment
-by using CGI.pm will bite you then.
+Можно не писать код для поддержки разных окружений веб серверов.
 
-You can start using one of PSGI compatible frameworks (either
-full-stack ones or micro ones), or use L<Plack::Request> if you are
-anti frameworks, to make your application PSGI aware, to be more
-future proof.
+В Plack много хорошо протестированных адаптеров для серверных окружений как,
+например, CGI, FastCGI и mod_perl. Так же много новых веб серверов написанных
+специально для поддержки стандартного PSGI интерфейса, как, например,
+L<Starman>, L<Starlet> и L<Twiggy>. Как только фреймворк поддерживает PSGI,
+больше ничего не нужно, чтобы их использовать. И это без каких бы то ни было
+усилий.
 
-Even if you ignore PSGI today and write applications in plain CGI, you
-can always later switch to PSGI with the L<CGI::PSGI> wrapper.
+Также, даже если фреймворк уже поддерживает большинство серверых окружений, как
+было сказано выше, можно отказаться от этого кода в пользу PSGI. Так поступили
+L<Jifly> и L<Catalyst>, когда реализовали поддержку PSGI. Меньше кода значит
+меньше багов :)
 
-=head3 What should I do to support PSGI?
+=item *
 
-If you're a web server developer, write a PSGI implementation that
-calls a PSGI application. Also join the development on Plack, the PSGI
-toolkit and utilities, to add a server adapter for your web server.
+Фреймворк теперь может использовать все промежуточные компоненты Plack 
 
-If you're a web application framework developer, write an adapter for
-PSGI. Now you're freed from supporting all different server
-environments.
+Если поискать L<Plack::Middleware> на CPAN можно найти сотни PSGI совместимых
+промежуточных компонентов. Это часто написанные с нуля, но также и заимствующие
+код из существующих плагинов для фреймворков таких как L<Catalyst>, модули.
+Поддерживая PSGI интерфейс, фреймворк может использовать эти полезные
+компоненты, будь то сессии, кеширование, перепизаписывание URL или отладочная
+панель, и это только несколько из них.
 
-If you're a web application developer (or a web application framework
-user), choose the framework that supports PSGI, or ask the author to
-support it. :) If your application is a large scale installable
-application that doesn't use any existing frameworks (e.g. WebGUI or
-Movable Type) you're considered as a framework developer instead from
-the PSGI point of view. So, writing an adapter for PSGI on your
-application would make more sense.
+=item *
 
-=head3 Is PSGI faster than (my framework)?
+Можно тестировать приложения используя единообразный интерфейс L<Plack::Test>.
 
-Again, PSGI is not an implementation, but there's a potential for a
-very fast PSGI implementation that preloads everything and runs fully
-optimized code as a preforked standalone with XS parsers, an
-event-based tiny web server written in C and embedded perl that
-supports PSGI, or a plain-old CGI.pm based backend that doesn't load
-any modules at all and runs pretty quickly without eating so much
-memory under the CGI environment.
+Любое PSGI приложение может быть протестировано с помощью L<Plack::Test>, либо
+через mock объекты, либо через запущенный сервер. Есть также
+L<Test::WWW::Mechanize::PSGI> для тестирования в стиле Mechanize.
 
-There are prefork web server implementations such as L<Starman> and
-L<Starlet>, as well as fully asynchronous event based implementations
-such as L<Twiggy>, L<Corona> or L<Feersum>. They're pretty fast and
-they include adapters for Plack so you can run with the L<plackup>
-utility.
+=back
 
-Users of your framework can choose which backend is the best for their
-needs.  You, as a web application framework developer, don't need to
-think about lots of different users with different needs.
+=head3 Я пишу веб приложение. В чем для меня преимущество использования PSGI?
+
+Если используется фреймворк поддерживающий PSGI, приложение может быть запущено
+на любой существующей или будущей PSGI реализации. Необходимо предоставить
+C<.psgi> файл, который возвращает PSGI приложение, и конечные пользователи
+приложения смогут сконфигурировать и запустить его различными способами.
+
+=head3 Но я пишу приложение на CGI и оно хорошо работает. Должен ли я переключаться на PSGI?
+
+Если пишется веб приложение с использованием CGI.pm не используя веб фреймворки,
+это ограничивает приложение для запуска только в CGI окружении, вместе с
+mod_perl и FastCGI с некоторыми изменениями. Если у приложения один программист
+и он же пользователь, то этого может быть вполне достаточно.
+
+Однажды может появиться необходимость использования приложения на виртуальном
+хостинге, или запуска сервера в автономном режиме, а не как CGI скрипт, или
+распространение приложения как open source. Лимитирование приложения CGI окружением,
+при этом используя CGI.pm, может аукнуться.
+
+Можно начать использовать один из PSGI совместимых фреймворков (либо
+полнофункциональных, либо микро), или использовать L<Plack::Request> если вы
+против фреймворков, чтобы сделать приложение осведомленным о PSGI на будущеe.
+
+Даже если вместо PSGI используется CGI для написания приложения, всегда можно
+переключиться на PSGI используя L<CGI::PSGI> оббертку.
+
+=head3 Что нужно сделать, чтобы поддерживать PSGI?
+
+Разработчикам веб серверов необходимо написать PSGI реализацию, называемую
+PSGI приложением. Также стоит присоединиться к разработке Plack - PSGI
+инструментария и утилит - чтобы добавить адаптер сервера.
+
+Разработчикам веб фреймворков необходимо написать адаптер для PSGI. Это
+освобождает от необходимости в поддержке разных серверных окружений.
+
+Разработчикам веб приложений (или пользователям веб вреймворков) необходимо
+выбрать фреймворк поддерживающий PSGI или попросить автора поддерживать
+этот интерфейс :). Если приложение большого размера и не использует никаких
+фреймворков (как, например, WebGUI или Movable Type) стоит следовать совету
+разработчикам фреймворков. В этом случае написание адаптера будет иметь больший
+смысл.
+
+=head3 Быстрее ли PSGI чем (мой фреймворк)?
+
+Опять же, PSGI это не реализация, но есть возможность написать очень быструю
+реализацию PSGI, которая загружает все модули и испольняет полностью
+оптимизированный код как автономный prefork сервер с XS парсерами, или как
+событийно-ориентированный легковесный веб сервер написанний на С и встроенном
+perl, который поддерживает PSGI, или старый добрый основанный на CGI.pm скрипт,
+который не загружает никаких модулей вобще и выполняется довольно быстро без
+использования большого количества памяти в CGI окружении.
+
+Есть реализация prefork веб серверов такие как L<Starman> и L<Starlet>, а также
+полнофункциональные асинхронные событийно-ориентированные реализации такие как
+L<Twiggy>, L<Corona> или L<Feersum>. Они довольно быстрые и имеют Plack
+адаптеры, так что их можно запускать через утилиту L<plackup>.
+
+Пользователи фреймворка могут выбрать какой сервер больше подходит под их нужды.
+Разработчику веб фреймворка нет необходимости думать о разных пользователях с
+разными запросами.
 
 =head2 Plack
 
-=head3 What is Plack? What is the difference between PSGI and Plack?
+=head3 Что такое Plack? В чем отличие между PSGI и Plack?
 
-PSGI is a specification, so there's no software or module called PSGI.
-End users will need to choose one of the PSGI server implementations
-to run PSGI applications on. Plack is a set of PSGI utilities and
-contains the reference PSGI server L<HTTP::Server::PSGI>, as well as
-Web server adapters for CGI, FastCGI and mod_perl.
+PSGI это спецификация, поэтому нет программы или модуля называемого PSGI.
+Конечным пользователям необходимо определиться с серверной реализацией PSGI, чтобы
+запускать PSGI приложения. Plack это множество PSGI утилит, который также
+включает PSGI сервер L<HTTP::Server::PSGI>, а также серверные
+адаптеры под CGI, FastCGI или mod_perl.
 
-Plack also has useful APIs and helpers on top of PSGI, such as
-L<Plack::Request> to provide a nice object-oriented API on request
-objects, L<plackup> that allows you to run an PSGI application from
-the command line and configure it using C<app.psgi> (a la Rack's
-Rackup), and L<Plack::Test> that allows you to test your application
-using standard L<HTTP::Request> and L<HTTP::Response> pair through
-mocked HTTP or live HTTP servers. See L<Plack> for details.
+Plack также имеет множество полезных API и вспомогательного кода над PSGI, как,
+например L<Plack::Request> для обеспечения объектно-ориентированного API для
+запросов, L<plackup>, что позволяет запускать PSGI приложения из командной
+строки и конфигурировать их с помощью C<app.psgi> (аналог Rackup из Rack), и
+L<Plack::Test> что позволяет тестировать приложения используя стандартную пару
+L<HTTP::Request> и L<HTTP::Response> через mock или запущенный сервер. Смотрите
+L<Plack>.
 
-=head3 What kind of server backends would be available?
+=head3 Какие серверы будут доступны?
 
-In Plack, we already support most web servers like Apache2, and also
-the ones that supports standard CGI or FastCGI, but also try to
-support special web servers that can embed perl, like Perlbal or
-nginx. We think it would be really nice if Apache module mod_perlite
-and Google AppEngine supported PSGI too, so that you could run your
-PSGI/Plack based perl app in the cloud.
+В Plack поддерживается уже большинство серверов таких как Apache2, а также те,
+которые поддерживают CGI или FastCGI, есть попытки поддерживать веб сервера,
+который могут встраивать Perl, такие как Perlbal или nginx. Было бы хорошо, если
+бы модуль Apache mod_perlite и Google AppEngine тоже поддерживали PSGI, чтобы
+можно было запускать PSGI/Plack приложение в облаке.
 
-=head3 Ruby is Rack and JavaScript is Jack. Why is it not called Pack?
+=head3 Ruby это Rack, JavaScript это Jack. Почему это не называется Pack?
 
-Well Pack indeed is a cute name, but Perl has a built-in function pack
-so it's a little confusing, especially when speaking instead of writing.
+Да, Pack это действительно милое имя, но у Perl есть встроенная функция pack,
+поэтому это может сбить с толку, особенно когда об этом рассказывают, а не
+пишут.
 
-=head3 What namespaces should I use to implement PSGI support?
+=head3 Какой префикс стоит использовать реализовывая PSGI поддержку?
 
-B<Do not use the PSGI:: namespace to implement PSGI backends
-or adapters>.
+B<Не используйте PSGI:: префикс для реализаций PSGI серверов или адаптеров>.
 
-The PSGI namespace is reserved for PSGI specifications and reference
-unit tests that implementors have to pass. It should not be used by
-particular implementations.
+PSGI префикс зарезервирован для PSGI спецификации и перечня юнит тестов, которые
+должны проходиться разработчиками. Он не должен использоваться для конкретных
+реализаций.
 
-If you write a plugin or an extension to support PSGI for an
-(imaginary) web application framework called C<Camper>, name the code
-such as C<Camper::Engine::PSGI>.
+Если пишется плагин или расширение для поддержки PSGI для (воображаемого) веб
+фреймворка С<Camper>, назовайте модуль C<Camper::Engine::PSGI>.
 
-If you write a web server that supports PSGI interface, then name it
-however you want. You can optionally support L<Plack::Handler>'s
-abstract interface or write an adapter for it, which is:
+Если пишется веб сервер с поддержкой интерфейса PSGI, тогда можно назвать его
+как угодно. Опционально можно поддерживать абстрактный интерфейс
+L<Plack::Handler> или написать адаптер, например:
 
   my $server = Plack::Handler::FooBar->new(%opt);
   $server->run($app);
 
-By supporting this C<new> and C<run> in your server, it becomes
-plackup compatible, so users can run your app via C<plackup>. You're
-recommended to, but not required to follow this API, in which case you
-have to provide your own PSGI app launcher.
+Поддерживая C<new> и C<run>, сервер становится совместимым с C<plackup>, и
+пользователи смогут запускать приложения с помощью C<plackup>. Рекомендуется, но
+не требуется, следовать этому API, правда придется реализовать собственный
+модуль для запуска PSGI приложений.
 
 =head3 I have a CGI or mod_perl application that I want to run on PSGI/Plack. What should I do?
 
