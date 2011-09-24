@@ -131,7 +131,7 @@ mod_perl и FastCGI с некоторыми изменениями. Если у 
 против фреймворков, чтобы сделать приложение осведомленным о PSGI на будущеe.
 
 Даже если вместо PSGI используется CGI для написания приложения, всегда можно
-переключиться на PSGI используя L<CGI::PSGI> оббертку.
+переключиться на PSGI используя L<CGI::PSGI> обертку.
 
 =head3 Что нужно сделать, чтобы поддерживать PSGI?
 
@@ -223,76 +223,72 @@ L<Plack::Handler> или написать адаптер, например:
 не требуется, следовать этому API, правда придется реализовать собственный
 модуль для запуска PSGI приложений.
 
-=head3 I have a CGI or mod_perl application that I want to run on PSGI/Plack. What should I do?
+=head3 У меня есть CGI или mod_perl приложение, которое я хочу запусть на PSGI/Plack. Что мне следует делать?
 
-You have several choices:
+Есть несколько вариантов:
 
 =over 4
 
 =item CGI::PSGI
 
-If you have a web application (or framework) that uses CGI.pm to handle
-query parameters, L<CGI::PSGI> can help you migrate to PSGI.  You'll
-need to change how you create CGI objects and how to return the response
-headers and body, but the rest of your code will work unchanged.
+Если есть веб приложение (или фреймворк) которое использует CGI.pm для разбора
+параметров запроса, L<CGI::PSGI> поможет мигрировать на PSGI. Необходимо будет
+изменить создание CGI объектов и возврат заголовков и тела ответа, остальной же
+код останется без изменений.
 
-=item CGI::Emulate::PSGI and CGI::Compile
+=item CGI::Emulate::PSGI и CGI::Compile
 
-If you have a dead old CGI script that you want to change as little as
-possible (or even no change at all), then L<CGI::Emulate::PSGI> and
-L<CGI::Compile> can compile and wrap them up as a PSGI application.
+Если есть старый мертвый CGI скрипт, который хотелось бы минимально изменить
+(или не менять вообще), тогда L<CGI::Emulate::PSGI> и L<CGI::Compile>
+скомпилируют и обернут скрипт как PSGI приложение.
 
-Compared to L<CGI::PSGI>, this might be less efficient because of
-STDIN/STDOUT capturing and environment variable mangling, but should
-work with any CGI implementation, not just CGI.pm, and L<CGI::Compile>
-does the job of compiling a CGI script into a code reference just like
-mod_perl's Registry does.
+По сравнению с L<CGI::PSGI> это не так эффективно из-за перехвата STDIN/STDOUT и
+переписывания окружения, но должно работать с любой CGI реализацией, не только
+CGI.pm, кроме того L<CGI::Compile> компилирует CGI скрипт в CODEREF
+точно также как это делает Registry в mod_perl.
 
-=item Plack::Request and Plack::Response
+=item Plack::Request и Plack::Response
 
-If you have an L<HTTP::Engine> based application (framework), or want to
-write an app from scratch and need a better interface than L<CGI>, or
-you're used to L<Apache::Request>, then L<Plack::Request> and
-L<Plack::Response> might be what you want. It gives you a nice
-Request/Response object API on top of the PSGI env hash and response
-array.
+Если имеется L<HTTP::Engine> приложение (фреймворк), или необходимо написать его
+с нуля, но с использованием лучшего, чем CGI, интерфейса, или нравится интерфейс
+L<Apache::Request>, тогда L<Plack::Request> и L<Plack::Response> это то, что
+нужно. Они предоставляют удобное Request/Response объектное API для упрощения
+работы с хешом окружения и возвращают правильный массив со статусом, заголовками
+и телом ответа.
 
 =back
 
-NOTE: Don't forget that whenever you have a CGI script that runs once
-and exits, and you turn it into a persistent process, it may have
-cleanup that needs to happen after every request -- variables that need
-to be reset, files that need to be closed or deleted, etc.  PSGI can do
-nothing about that (you have to fix it) except give you this friendly
-reminder.
+ПРИМЕЧАНИЕ: Не стоит забывать, что когда имеющийся CGI скрипт, который
+выполняется один раз и завершается, используют как постоянный процесс, может
+потребоваться очистка после каждого запроса: переменные, которые должны быть
+обнулены; файлы, которые должны быть закрыты или удалены и т.д. PSGI ничего не
+может сделать по этому поводу (необходима реализация), кроме как напомнить в
+этом примечании.
 
 =head2 HTTP::Engine
 
-=head3 Why PSGI/Plack instead of HTTP::Engine?
+=head3 Почему PSGI/Plack вместо HTTP::Engine?
 
-HTTP::Engine was a great experiment, but it mixed the application
-interface (the C<request_handler> interface) with implementations, and
-the monolithic class hierarchy and role based interfaces make it really
-hard to write a new backend. We kept the existing HTTP::Engine and broke
-it into three parts: The interface specification (PSGI), Reference
-server implementations (Plack::Handler) and Standard APIs and Tools
+HTTP::Engine был хорошим экспериментом, но там совмещен интерфейс приложения
+(C<request_handler> интерфейс) с реализациями, а монолитная классовая иерархия и
+интерфейсы, выполненные на ролях, делают сложным написание нового сервера.
+Существующий HTTP::Engine был разбит на три части: спецификация интерфейса
+(PSGI), имплементация серверов (Plack::Handler) и стандартное API и утилиты
 (Plack).
 
-=head3 Will HTTP::Engine be dead?
+=head3 Умрет ли HTTP::Engine?
 
-It won't be dead. HTTP::Engine will stay as it is and still be useful
-if you want to write a micro webserver application rather than a
-framework.
+Он не умрет. HTTP::Engine останется таким каким есть и может быть полезным, если
+необходимо написать микро вебсерверное приложение, а не фреймворк.
 
-=head3 Do I have to rewrite my HTTP::Engine application to follow PSGI interface?
+=head3 Должен ли я переписать HTTP::Engine приложение, чтобы следовать интерфейсу PSGI?
 
-No, you don't need to rewrite your existing HTTP::Engine application.
-It can be easily turned into a PSGI application using
-L<HTTP::Engine::Interface::PSGI>.
+Нет, необходимости в переписывании HTTP::Engine приложения нет. Оно может быть
+просто превращено в PSGI приложение с помощью L<HTTP::Engine::Interface::PSGI>.
 
-Alternatively, you can use L<Plack::Request> and L<Plack::Response>
-which gives compatible APIs to L<HTTP::Engine::Request> and
-L<HTTP::Engine::Response>:
+В качестве альтернативы можно использовать L<Plack::Request> и
+L<Plack::Response>, что предоставляет совместимое c L<HTTP::Engine::Request> и
+L<HTTP::Engine::Response> API:
 
   use Plack::Request;
   use Plack::Response;
@@ -304,7 +300,7 @@ L<HTTP::Engine::Response>:
       return $res->finalize;
   }
 
-And this C<request_handler> is a PSGI application now.
+Метод C<request_handler> это и есть PSGI приложение.
 
 =head2 API Design
 
