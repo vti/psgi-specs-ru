@@ -1,84 +1,83 @@
 =encoding utf-8
 
-=head1 NAME
+=head1 НАИМЕНОВАНИЕ
 
 PSGI - Спецификация Веб-серверного Шлюзового Интерфейса для Perl
 
-=head1 ABSTRACT
+=head1 ОБЗОР
 
 Этот документ определяет стандартный интерфейс между веб-серверами
-и веб-приложениями или фреймворками на Perl. Этот интерфейс призван содействовать
-портабельности веб-приложений и сокращению дублирования усилий разработчиков
-веб-фреймворков.
+и веб-приложениями или фреймворками на Perl. Этот интерфейс призван
+содействовать портабельности веб-приложений и сокращению дублирования
+усилий разработчиков веб-фреймворков.
 
 Пожалуйста имейте в виду, что PSGI - не просто "Ещё Один Веб-фреймворк".
 PSGI - это спецификация, предназначенная для отделения среды веб-сервера
 от кода веб-фреймворка. Также PSGI не является программным интерфейсом (API)
-для веб-приложений. Разработчики веб-приложений (конечные пользователи) не будут
-запускать свои веб-приложения используя PSGI напрямую - вместо этого предполагается
-использование фреймворков, поддерживающих PSGI.
+для веб-приложений. Разработчики веб-приложений (конечные пользователи) не
+будут запускать свои веб-приложения используя PSGI напрямую - вместо этого
+предполагается использование фреймворков, поддерживающих PSGI.
 
-=head1 TERMINOLOGY
+=head1 ТЕРМИНОЛОГИЯ
 
 =over 4
 
 =item Веб-серверы
 
-I<Веб-серверы> принимают HTTP запросы от веб-клиентов,
-передают эти запросы веб-приложениям, если сконфигурированы делать это,
-и возвращают HTTP ответы инициировавшим запрос клиентам.
+I<Веб-серверы> принимают HTTP запросы от веб-клиентов, передают эти запросы
+веб-приложениям (если сконфигурированы делать это) и возвращают HTTP ответы
+инициировавшим запрос клиентам.
 
 =item PSGI сервер
 
 I<PSGI сервер> - это программа на Perl, предоставляющая среду для запуска
 в ней I<PSGI приложения>.
 
-PSGI specifying an interface for web applications and the main purpose
-of web applications being to be served to the Internet, a I<PSGI
-Server> will most likely be either: part of a web server (like Apache
-mod_perl), connected to a web server (with FastCGI, SCGI), invoked by
-a web server (as in plain old CGI), or be a standalone web server
-itself, written entirely or partly in Perl.
+PSGI определяет интерфейс для веб-приложений и основную задачу веб-приложений,
+которая заключается в том, чтобы обслуживать запросы через Интернет. I<PSGI
+сервер>, скорее всего, будет либо: частью веб-сервера (как Apache mod_perl),
+соединён с веб-сервером (при помощи FastCGI, SCGI), вызываться веб-сервером
+(как в старом добром CGI), или же сам по себе будет автономным веб-сервером,
+написанным целиком или частично на Perl.
 
-There is, however, no requirement for a I<PSGI Server> to actually be
-a web server or part of one, as I<PSGI> only defines an interface
-between the server and the application, not between the server and the
-world.
 
-A I<PSGI Server> is often also called I<PSGI Application Container>
-because it is similar to a I<Java Servlet container>, which is Java
-process providing an environment for I<Java Servlets>.
+Тем не менее, I<PSGI Сервер> не обязан в действительности быть веб-сервером
+или его частью, так как I<PSGI> только определяет интерфейс между сервером
+и приложением, а не между сервером и остальным миром.
 
-=item Applications
+I<PSGI Сервер> также часто называется I<PSGI Application Conteiner>,
+так как он похож на I<Java Servlet container>, который представляет собой
+Java процесс, предоставляющий среду для I<сервлетов Java>.
 
-I<Web applications> accept HTTP requests and return HTTP responses.
+=item Приложения
 
-I<PSGI applications> are web applications conforming to the PSGI interface,
-prescribing they take the form of a code reference
-with defined input and output.
+I<Веб-приложения> принимают HTTP запросы и возвращают HTTP ответы.
 
-For simplicity,
-I<PSGI Applications> will also be referred to as I<Applications>
-for the remainder of this document.
+I<PSGI приложения> - веб-приложения, соответствующие интерфейсу PSGI.
+Они должны принимать форму code reference с определёнными входными
+и выходными данными.
 
-=item Middleware
+Для простоты I<PSGI приложения> также будут называться I<Приложениями>
+до конца этого документа.
 
-I<Middleware> is a PSGI application (a code reference) I<and> a
-I<Server>. I<Middleware> looks like an I<application> when called from a
-I<server>, and it in turn can call other I<applications>. It can be thought of
-a I<plugin> to extend a PSGI application.
+=item Middleware (связующее ПО)
 
-=item Framework developers
+I<Middleware> (I<Связующее ПО>) - приложение PSGI (code reference) I<а также>
+I<Сервер>. I<Middleware> выглядит как I<приложение>, когда вызывается со
+стороны I<сервера>, и в свою очередь может вызывать другие I<приложения>.
+Можно думать о нём как о I<плагине> для расширения приложения PSGI.
 
-I<Framework developers> are the authors of web application frameworks. They
-write adapters (or engines) which accept PSGI input, run a web
-application, and return a PSGI response to the I<server>.
+=item Разработчики фреймворков
 
-=item Web application developers
+I<Разработчики фреймворков> - это авторы фреймворков для веб-приложений. Они
+пишут адаптеры (или движки), которые принимают входные данные PSGI, запускают
+веб-приложение и возвращают ответ PSGI I<серверу>.
 
-I<Web application developers> are developers who write code on top of a web
-application framework. These developers should never have to deal with PSGI
-directly.
+=item Разработчики веб-приложений
+
+I<Разработчики веб-приложений> - это разработчики, которые пишут код на основе
+веб-фреймворков. Эти рзаработчики никогда не должны иметь дело с PSGI
+напрямую.
 
 =back
 
