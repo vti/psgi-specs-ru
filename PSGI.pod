@@ -280,27 +280,29 @@ C</>, а переменной C<SCRIPT_NAME> следует быть пусто�
 C<SCRIPT_NAME> B<НЕ ДОЛЖНА> быть равной C</>, но B<МОЖЕТ> быть пустой.
 
 
-=head3 The Input Stream
+=head3 Входной Поток
 
-The input stream in C<psgi.input> is an L<IO::Handle>-like object which
-streams the raw HTTP POST or PUT data. If it is a file handle then it
-B<MUST> be opened in binary mode. The input stream B<MUST> respond to
-C<read> and B<MAY> implement C<seek>.
+Входной поток в C<psgi.input> - это L<IO::Handle>-подобный объект, который
+отдаёт поток необработанных HTTP POST или PUT данных. Если это дескриптор
+файла, то он B<ДОЛЖЕН> быть открыт в бинарном режиме. Входной поток B<ДОЛЖЕН>
+отвечать на C<read> и B<МОЖЕТ> реализовывать C<seek>.
 
-Perl's built-in filehandles or L<IO::Handle> based objects should work as-is
-in a PSGI server. Application developers B<SHOULD NOT> inspect the type or
-class of the stream. Instead, they B<SHOULD> simply call C<read> on the object.
+Встроенные дескрипторы файлов Perl или основанные на L<IO::Handle> объекты
+должны работать "как есть" в PSGI сервере. Разработчикам приложений B<НЕ
+СЛЕДУЕТ> контролировать тип или класс потока. Вместо этого им B<СЛЕДУЕТ>
+просто вызывать метод C<read> объекта.
 
-Application developers B<SHOULD NOT> use Perl's built-in C<read> or iterator
-(C<< <$fh> >>) to read from the input stream. Instead, application
-developers should call C<read> as a method (C<< $fh->read >>) to allow for
-duck typing.
+Разработчикам приложений B<НЕ СЛЕДУЕТ> использовать встроенную функцию Perl
+C<read> или итератор (C<< <$fh> >>) для чтения из входного потока. Вместо
+этого, разработчикам приложений следует вызывать C<read> как метод
+(C<< $fh->read >>) для обеспечения утиной типизации.
 
-Framework developers, if they know the input stream will be used with the
-built-in read() in any upstream code they can't touch, B<SHOULD> use PerlIO or
-a tied handle to work around with this problem.
+Разработчикам фреймворков, если они знают, что входной поток будет использован
+со встроенной функцией read() в любом апстрим-коде, к которому они не смогут
+прикоснуться, B<СЛЕДУЕТ> использовать PerlIO или tied handle для обработки этой
+проблемы.
 
-The input stream objet is expected to provide a C<read> method:
+Ожидается, что объект входного потока обеспечивает метод C<read>:
 
 =over 4
 
@@ -308,14 +310,14 @@ The input stream objet is expected to provide a C<read> method:
 
   $input->read($buf, $len [, $offset ]);
 
-Returns the number of characters actually read, 0 at end of file, or
-undef if there was an error.
+Возвращает число действительно прочитанных символов, 0 в конце файла, или
+undef при ошибке.
 
 =back
 
-It may also implement an optional C<seek> method. If
-C<psgix.input.buffered> environment is true, it <MUST> implement the
-C<seek> method.
+Он может также реализовывать опциональный метод C<seek>. Если
+переменная окружения C<psgix.input.buffered> равна true, он B<ДОЛЖЕН>
+реализовывать метод C<seek>.
 
 =over 4
 
@@ -323,22 +325,22 @@ C<seek> method.
 
   $input->seek($pos, $whence);
 
-Returns 1 on success, 0 otherwise.
+Возвращает 1 при успехе, иначе 0.
 
 =back
 
-See the L<IO::Handle> documentation for more details on exactly how these
-methods should work.
+См. документацию L<IO::Handle> для получения дальнейших подробностей о том,
+как эти методы в точности должны работать.
 
-=head3 The Error Stream
+=head3 Поток Ошибок
 
-The error stream in C<psgi.errors> is an L<IO::Handle>-like object to
-print errors. The error stream must implement a C<print> method.
+Поток ошибок в C<psgi.errors> - это L<IO::Handle>-подобный объект для печати
+ошибок. Поток ошибок должен реализовывать метод C<print>.
 
-As with the input stream, Perl's built-in filehandles or L<IO::Handle> based
-objects should work as-is in a PSGI server. Application developers B<SHOULD
-NOT> inspect the type or class of the stream. Instead, they B<SHOULD> simply
-call C<print> on the object.
+Как и с входным потоком, встроенные файловые дескрипторы Perl или
+основанные на L<IO::Handle> объекты должны работать "как есть" в PSGI сервере.
+Разработчикам приложений B<НЕ СЛЕДУЕТ> проверять тип или класс потока. Вместо
+этого, им B<СЛЕДУЕТ> просто вызывать метод объекта C<print>.
 
 =over 4
 
@@ -346,82 +348,85 @@ call C<print> on the object.
 
   $errors->print($error);
 
-Returns true if successful.
+Возвращает true при успехе.
 
 =back
 
-=head3 The Response
+=head3 Ответ
 
-Applications B<MUST> return a response as either a three element array
-reference, or a code reference for a delayed/streaming response.
+Приложения B<ДОЛЖНЫ> возвращать ответ или как ссылку на трёхэлементный массив,
+или code reference на отложенный/потоковый ответ.
 
-The response array reference consists of the following elements:
+Массив, на который возвращается ссылка, состоит из следующих элементов:
 
-=head4 Status
+=head4 Статус
 
-An HTTP status code. This B<MUST> be an integer greater than or equal to 100,
-and B<SHOULD> be an HTTP status code as documented in L<RFC
+Код статуса HTTP. Это B<ДОЛЖНО> быть целое число, большее или равное 100, и
+ему B<СЛЕДУЕТ> быть кодом статуса HTTP, как описано в L<RFC
 2616|http://www.w3.org/Protocols/rfc2616>.
 
-=head4 Headers
+=head4 Заголовки
 
-The headers B<MUST> be an array reference (B<not> a hash reference)
-of key/value pairs. This means it B<MUST> contain an even number of elements.
+Заголовки B<ДОЛЖНЫ> быть ссылкой на массив (B<не> ссылкой на хеш) или парами
+ключ/значение. Это значит, они B<ДОЛЖНЫ> содержать чётное число элементов.
 
-The header B<MUST NOT> contain a key named C<Status>, nor any keys with C<:>
-or newlines in their name. It B<MUST NOT> contain any keys that end in C<-> or
-C<_>.
+Заголовок B<НЕ ДОЛЖЕН> содержать ключ с названием C<Status>, а также
+какие-либо ключи с C<:> или переводом строки в названии. Он B<НЕ ДОЛЖЕН>
+содержать какие-либо ключи, оканчивающиеся на C<-> или C<_>.
 
-All keys B<MUST> consist only of letters, digits, C<_> or C<->. All
-keys B<MUST> start with a letter. The value of the header B<MUST> be a
-scalar string and defined. The value string B<MUST NOT> contain
-characters below octal 037 i.e. chr(31).
+Все ключи B<ДОЛЖНЫ> состоять только из букв, цифр, C<_> или C<->. Все ключи
+B<ДОЛЖНЫ> начинаться с буквы. Значение заголовка B<ДОЛЖНО> быть скалярной
+строкой, и должно быть определено. Значение строки B<НЕ ДОЛЖНО> содержать
+символы ниже восьмеричного 037, т.е. chr(31).
 
-If the same key name appears multiple times in an array ref, those
-header lines B<MUST> be sent to the client separately (e.g. multiple
-C<Set-Cookie> lines).
+Если одни и те же имена ключей появляются несколько раз в ссылке на массив,
+эти строки заголовков B<ДОЛЖНЫ> отправляться к клиенту по отдельности
+(например, несколько строк C<Set-Cookie>).
 
 =head4 Content-Type
 
-There B<MUST> be a C<Content-Type> except when the C<Status> is 1xx, 204
-or 304, in which case there B<MUST NOT> be a content type.
+B<ДОЛЖЕН> присутствовать C<Content-Type> за исключением случая, когда
+C<Status> равен 1xx, 204 или 304 - в этом случае B<НЕ ДОЛЖНО> быть указано
+типа содержимого.
 
 =head4 Content-Length
 
-There B<MUST NOT> be a C<Content-Length> header when the C<Status> is
-1xx, 204 or 304.
+Заголовок C<Content-Length> B<НЕ ДОЛЖЕН> быть указан, когда C<Status> равен
+1xx, 204 или 304.
 
-If the Status is not 1xx, 204 or 304 and there is no C<Content-Length> header,
-a PSGI server B<MAY> calculate the content length by looking at the Body. This
-value can then be appended to the list of headers returned by the application.
+Если Status не 1xx, 204 или 304 и заголовок C<Content-Length> отсутствует,
+PSGI сервер B<МОЖЕТ> вычислить длину содержимого, глядя на Тело ответа. Это
+значение может затем быть добавлено к списку заголовков, возвращенному
+приложением.
 
-=head4 Body
+=head4 Тело ответа
 
-The response body B<MUST> be returned from the application as either
-an array reference or a handle containing the response body as byte
-strings. The body B<MUST> be encoded into appropriate encodings and
-B<MUST NOT> contain wide characters (> 255).
+Тело ответа B<ДОЛЖНО> быть возвращено из приложения или как ссылка на массив,
+или как дескриптор, содержащий тело ответа в виде байтовой строки. Тело
+B<ДОЛЖНО> быть закодировано в соответствующей кодировке и B<НЕ ДОЛЖНО>
+содержать "широких" символов (> 255).
 
 =over 4
 
 =item *
 
-If the body is an array reference, it is expected to contain an array of lines
-which make up the body.
+Если тело ответа - ссылка на массив, ожидается, что оно содержит массив строк,
+из которых состоит само тело.
 
   my $body = [ "Hello\n", "World\n" ];
 
-Note that the elements in an array reference are B<NOT REQUIRED> to end
-in a newline. A server B<SHOULD> write each elements as-is to the
-client, and B<SHOULD NOT> care if the line ends with newline or not.
+Обратите внимание, что элементы в массиве B<НЕОБЯЗАТЕЛЬНО> должны оканчиваться
+переводом строки. Серверу B<СЛЕДУЕТ> отправлять каждый элемент "как есть"
+клиенту, и B<НЕ СЛЕДУЕТ> заботиться о том, оканчиваются ли строки переводом
+строки, или нет.
 
-An array reference with a single value is valid. So C<[ $html ]> is a valid
-response body.
+Ссылка на массив с единственным значением валидна. Так, C<[ $html ]> -
+валидное тело ответа.
 
 =item *
 
-The body can instead be a handle, either a Perl built-in filehandle or an
-L<IO::Handle>-like object.
+Тело ответа может вместо этого быть дескриптором - или встроенным файловым
+дескриптором Perl, или L<IO::Handle>-подобным объектом.
 
   open my $body, "</path/to/file";
   open my $body, "<:via(SomePerlIO)", ...;
@@ -430,53 +435,65 @@ L<IO::Handle>-like object.
   # mock class that implements getline() and close()
   my $body = SomeClass->new();
 
-Servers B<SHOULD NOT> check the type or class of the body. Instead, they should
-simply call C<getline> to iterate over the body, and
-call C<close> when done.
+Серверам B<НЕ СЛЕДУЕТ> проверять тип или класс тела ответа. Вместо этого им
+следует просто вызывать C<getline> для перебора строк тела, и вызвать C<close>
+по завершению.
 
-Servers B<MAY> check if the body is a real filehandle using C<fileno> and
-C<Scalar::Util::reftype>. If the body is real filehandle, the server B<MAY>
-optimize using techniques like I<sendfile(2)>.
+Серверы B<МОГУТ> проверять, является ли тело реальным файловым дескриптором,
+используя C<fileno> и C<Scalar::Util::reftype>. Если тело - реальный
+дескриптор файла, сервер B<МОЖЕТ> оптимизировать выполнение, используя методы
+вроде I<sendfile(2)>.
 
-The body object B<MAY> also respond to a C<path> method. This method is
-expected to return the path to a file accessible by the server. This allows
-the server to use this information instead of a file descriptor number to
-serve the file.
+Объект тела также B<МОЖЕТ> иметь метод C<path>. Ожидается, что этот метод
+возвратит путь к файлу, доступному серверу. Это позволяет серверу использовать
+данную информацию вместо номера файлового дескриптора для отдачи файла.
 
-Servers B<SHOULD> set the C<$/> special variable to the buffer size when
-reading content from C<$body> using the C<getline> method. This is done by
-setting C<$/> with a reference to an integer (C<$/ = \8192>).
+Серверам B<СЛЕДУЕТ> устанавливать специальную переменную C<$/> для получения
+размера буфера при чтении содержимого из C<$body> при помощи метода
+C<getline>. Это делается путём присваивания C<$/> ссылки на целое число (C<$/
+= \8192).
 
-If the body filehandle is a Perl built-in filehandle L<IO::Handle> object,
-they will respect this value. Similarly, an object which provides the same API
-B<MAY> also respect this special variable, but are not required to do so.
+Если файловый дескриптор тела ответа - встроенный файловый дескриптор Perl или
+объект L<IO::Handle>, они обратят внимание на значение. Похожим образом
+объект, предоставляющий аналогичный API, B<МОЖЕТ> также обратить внимание на
+эту специальную переменную, но от него не требуется делать это.
 
 =back
 
-=head2 Delayed Response and Streaming Body
+=head2 Отложенный Ответ и Потоковое Тело ответа
 
 The PSGI interface allows applications and servers to provide a
 callback-style response instead of the three-element array
 reference. This allows for a delayed response and a streaming body
 (server push).
 
-This interface B<SHOULD> be implemented by PSGI servers, and
-C<psgi.streaming> environment B<MUST> be set to true in such servers.
+Интерфейс PSGI позволяет приложениям и серверам предоставлять ответ в виде
+вызываемой функции вместо ссылки на трёхэлементный массив. Это позволяет
+возвращать отложенные ответы и потоковое тело ответа (server push).
 
-To enable a delayed response, the application B<SHOULD> return a
-callback as its response. An application B<MAY> check if the
-C<psgi.streaming> environment is true and falls back to the direct
-response if it isn't.
+PSGI серверам B<СЛЕДУЕТ> реализовывать этот интерфейс, и переменная
+C<psgi.streaming> должна быть равна true в таких серверах.
+
+Чтобы разрешить отложенный ответ, приложению B<СЛЕДУЕТ> возвращать вызываемую
+функцию в качестве ответа. Приложение B<МОЖЕТ> проверять, что переменная
+C<psgi.streaming> равна true, и возвращаться к непосредственному ответу, если
+это не так.
 
 This callback will be called with I<another> subroutine reference (referred to
 as the I<responder> from now on) as its only argument. The I<responder>
 should in turn be called with the standard three element array reference
 response. This is best illustrated with an example:
 
+Эта вызываемая функция будет вызвана со ссылкой наI<другую> функцию (далее
+называемую I<ответчик>) в качестве единственного аргумента. I<Ответчик> должен
+в свою очередь быть вызван со стандартноым ответом в виде ссылки на
+трёхэлементный массив. Наилучшим образом это иллюстрируется следующим
+примером:
+
   my $app = sub {
       my $env = shift;
 
-      # Delays response until it fetches content from the network
+      # Откладывает ответ до тех пор, пока он не получит ответ от сети
       return sub {
           my $responder = shift;
 
@@ -487,10 +504,10 @@ response. This is best illustrated with an example:
       };
   };
 
-An application B<MAY> omit the third element (the body) when calling
-the I<responder>. If the body is omitted, the I<responder> B<MUST>
-return I<yet another> object which implements C<write> and C<close>
-methods. Again, an example illustrates this best.
+Приложение B<МОЖЕТ> опустить третий элемент (тело) при вызове I<ответчика>.
+Если тело пропущено, I<ответчик> B<ДОЛЖЕН> возвратить I<ещё один> объект,
+в котором реализованы методы C<write> и C<close>. Снова проиллюстрируем это
+примером.
 
   my $app = sub {
       my $env = shift;
@@ -512,10 +529,10 @@ methods. Again, an example illustrates this best.
       };
   };
 
-This delayed response and streaming API is useful if you want to
-implement a non-blocking I/O based server streaming or long-poll Comet
-push technology, but could also be used to implement unbuffered writes
-in a blocking server.
+Этот отложенный ответ и потоковый API полезны, если вы хотите реализовать
+основанную на неблокирующем вводе/выводе отдачу потока сервером или технологию
+long-poll Comet push, но могут также быть использованы для реализации
+небуферизованной записи в блокирующем сервере.
 
 =head2 Middleware
 
