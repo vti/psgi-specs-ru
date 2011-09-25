@@ -400,45 +400,46 @@ C<getline> и C<close>. Вы можете также использовать Pe
 См. также L<IO::Handle::Util> чтобы превратить любые итераторо-подобные
 объекты в IO::Handle-подобные.
 
-=head3 How should server determine to switch to sendfile(2) based serving?
+=head3 Как серверу следует определять возможность переключиться на использование
+sendfile(2)?
 
-First of all, an application SHOULD always set a IO::Handle-like
-object (or an array of chunks) that responds to C<getline> and
-C<close> as a body. That is guaranteed to work with any servers.
+Для начала, приложению СЛЕДУЕТ всегда создавать IO::Handle-подобный объект
+(или массив частей), который отвечает на C<getline> и C<close> как тело ответа.
+Это гарантированно работает с любыми серверами.
 
-Optionally, if the server is written in perl or can tell a file
-descriptor number to the C-land to serve the file, then the server MAY
-check if the body is a real filehandle (possibly using
-L<Plack::Util>'s C<is_real_fh> function), then get a file descriptor
-with C<fileno> and call sendfile(2) or equivalent zero-copy data
-transfer using that.
+Опционально, если сервер написан на Perl или может передать номер файлового
+дескриптора на C-сторону программы, чтобы обслужить запрос на этот файл, то
+сервер МОЖЕТ проверить, является ли тело реальным файловым дескриптором
+(возможно, используя функцию C<is_real_fh> из L<Plack::Util>), затем получить
+файловый дескриптор при помощи C<fileno> и вызвать sendfile(2) или
+эквивалентную функцию передачи данных без затрат на копирование, использующую
+его.
 
-Otherwise, if the server can't send a file using the file descriptor
-but needs a local file path (like mod_perl or nginx), the application
-can return an IO::Handle-like object that also responds to C<path>
-method. This type of IO-like object can easily be created using
-L<IO::File::WithPath>, L<IO::Handle::Util> or L<Plack::Util>'s
-C<set_io_path> function.
+В противном случае, если сервер не может отправить файл используя файловый
+дескриптор, но нуждается в локальном пути к файлу (как mod_perl или nginx),
+приложение может вернуть IO::Handle-подобный объект, который также отвечает на
+метод C<path>. Этот тип IO-подобных объектов может легко быть создан при
+использовании L<IO::File::WithPath>, L<IO::Handle::Util> или функции
+C<set_io_path> из модуля L<Plack::Util>.
 
-Middlewares can also look to see if the body has C<path> method and
-does something interesting with it, like setting C<X-Sendfile>
-headers.
+Middleware также может проверять, есть ли у body метод C<path>, и делать с ним
+что-нибудь интересное - вроде установки заголовка C<X-Senfile>.
 
-To summarize:
+Подводя итог:
 
 =over 4
 
 =item *
 
-When to serve static files, applications should always return a real
-filehandle or IO::Handle object. That should work everywhere, and can
-be optimized in some environments.
+При отдаче статических файлов приложению следует всегда возвращать реальный
+дескриптор или объект IO::Handle. Это должно работать везде, и может быть
+оптимизировано в некоторых средах.
 
 =item *
 
-Applications can also set IO::Handle like object with an additional
-C<path> method, then it should work everywhere again, and can be
-optimized in even more environments.
+Приложения могут также создавать IO::Handle-подобный объект с дополнительным
+методом C<path>, после чего это также должно работать везде, и может быть
+оптимизировано даже в большем количестве различных сред.
 
 =back
 
