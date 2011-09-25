@@ -536,17 +536,16 @@ long-poll Comet push, но могут также быть использован
 
 =head2 Middleware
 
-A I<middleware> component takes another PSGI application and runs it. From the
-perspective of a server, a middleware component is a PSGI application. From
-the perspective of the application being run by the middleware component, the
-middleware is the server. Generally, this will be done in order to implement
-some sort of pre-processing on the PSGI environment hash or post-processing on
-the response.
+Компонент I<middleware> берёт другое PSGI приложение и запускает его. С точки
+зрения сервера компонент middleware - PSGI приложение. С точки зрения
+приложения, запускаемого компонентом middleware, middleware - это сервер. Как
+правило это делается для реализации некоего способа предварительной обработки
+хеша PSGI окружения или пост-обработки запроса.
 
-Here's a simple example that appends a special HTTP header
-I<X-PSGI-Used> to any PSGI application.
+Вот простой пример, который добавляет специальный HTTP заголовок
+I<X-PSGI-Used> к любому приложению PSGI.
 
-  # $app is a simple PSGI application
+  # $app - простое приложение PSGI
   my $app = sub {
       my $env = shift;
       return [ '200',
@@ -554,7 +553,7 @@ I<X-PSGI-Used> to any PSGI application.
                [ "Hello World" ] ];
   };
 
-  # $xheader is a piece of middleware that wraps $app
+  # $xheader - часть middleware, которая обёрнута вокруг $app
   my $xheader = sub {
       my $env = shift;
       my $res = $app->($env);
@@ -562,10 +561,10 @@ I<X-PSGI-Used> to any PSGI application.
       return $res;
   };
 
-Middleware B<MUST> behave exactly like a PSGI application from the perspective
-of a server. Middleware B<MAY> decide not to support the streaming interface
-discussed earlier, but B<SHOULD> pass through the response types that it doesn't
-understand.
+Middleware B<ДОЛЖНО> вести себя в точности так же, как приложение PSGI с точки
+зрения сервера. Middleware B<МОЖЕТ> решить не поддерживать потоковый
+интерфейс, обсуждавшийся ранее, но ему B<СЛЕДУЕТ> пропускать беспрепятственно
+те типы ответов, которые оно не понимает.
 
 =head1 CHANGELOGS
 
