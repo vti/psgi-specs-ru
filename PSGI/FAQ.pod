@@ -376,30 +376,29 @@ utf-8. Если используется PSGI фреймворк, есть во�
 Это решение было принятно для большей гибкости PSGI приложений и фреймворков,
 без добавления сложностей в PSGI серверы и в саму спецификацию интерфейса.
 
-=head3 No iterators support in $body?
+=head3 Нет поддержки итераторов в $body?
 
-We learned that WSGI and Rack really enjoy the benefit of Python and
-Ruby's language beauty, which are iterable objects in Python or
-iterators in Ruby.
+Мы узнали, что WSGI и Rack действительно пользуются такими преимуществами
+языков Python и Ruby, как итерабельные объекты в Python и итераторы в Ruby.
 
-Rack, for instance, expects the body as an object that responds to
-the C<each> method and then yields the buffer, so
+Rack, например, ожидает, что body - это объект, которые отвечает на метод
+C<each>, а затем создаёт буфер, так что
 
   body.each { |buf| request.write(buf) }
 
-would just magically work whether body is an Array, FileIO object or an
-object that implements iterators. Perl doesn't have such a beautiful
-thing in the language unless L<autobox> is loaded.  PSGI should not make
-autobox as a requirement, so we only support a simple array ref or file
-handle.
+просто магическим образом сработает вне зависимости от того, является ли тело
+массивом, объектом FileIO или объектом, у которого есть итераторы. У Perl нет
+такой красоты, встроенной в язык, если не загружен L<autobox>. PSGI не следует
+делать autobox необходимым требованием, так что мы только поддерживаем простые
+ссылки на массив или дескрипторы файлов.
 
-Writing an IO::Handle-like object is pretty easy since it's only
-C<getline> and C<close>. You can also use PerlIO to write an object that
-behaves like a filehandle, though it might be considered a little
-unstable.
+Написание IO::Handle-подобного объекта довольно просто, так как это просто
+C<getline> и C<close>. Вы можете также использовать PerlIO для написания
+объекта, который ведёт себя как файловый дескриптор, хотя это может быть
+сочтено несколько нестабильным.
 
-See also L<IO::Handle::Util> to turn anything iterators-like into
-IO::Handle-like.
+См. также L<IO::Handle::Util> чтобы превратить любые итераторо-подобные
+объекты в IO::Handle-подобные.
 
 =head3 How should server determine to switch to sendfile(2) based serving?
 
