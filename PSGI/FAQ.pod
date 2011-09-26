@@ -556,31 +556,31 @@ Google AppEngine или Heroku), или распределённую платф�
 всего лишь на несколько дюжин строк отличается от L<Catalyst::Engine::CGI> и
 был написан менее чем за час.
 
-=head3 Why is PATH_INFO URI decoded?
+=head3 Почему PATH_INFO URI декодирован?
 
-To be compatible with CGI spec (RFC 3875) and most web servers'
-implementations (like Apache and lighttpd).
+Для совместимости со спецификацией CGI (RFC 3875) и большинством реализаций
+веб-серверов (наподобие Apache и lighttpd).
 
-I understand it could be inconvenient that you can't distinguish
-C<foo%2fbar> from C<foo/bar> in the trailing path, but the CGI spec
-clearly says C<PATH_INFO> should be decoded by servers, and that web
-servers can deny such requests containing C<%2f> (since such requests
-would lose information in PATH_INFO). Leaving those reserved characters
-undecoded (partial decoding) would make things worse, since then you
-can't tell C<foo%2fbar> from C<foo%252fbar> and could be a security hole
-with double encoding or decoding.
+Я понимаю, может быть неудобно, что вы не можете различить C<foo%2fbar> от
+C<foo/bar> в окончании пути, но спецификация CGI ясно говорит, что
+C<PATH_INFO> следует декодировать помощи сервера, и что веб-серверы могут
+отклонять запросы, содержащие C<%2f> (так как такие запросы могут потерять
+информацию в PATH_INFO). Оставив эти зарезервированные символы
+недекодированными (частичное декодирование) можно ухудшить положение, так как
+после этого вы не сможете сказать C<foo%2fbar> из C<foo%252fbar>, и возможна
+дырка в безопасности при двойном кодировании или декодировании.
 
-For web application frameworks that need more control over the actual
-raw URI (such as L<Catalyst>), we made the C<REQUEST_URI> environment
-hash key REQUIRED. The servers should set the undecoded (unparsed)
-original URI (containing the query string) to this key. Note that
-C<REQUEST_URI> is completely raw even if the encoded entities are
-URI-safe.
+Для разработчиков веб-фреймворков, которым нужен больший контроль над
+актуальным необработанным URI (таких как L<Catalyst>), мы сделали
+ключ хеша окружения C<REQUEST_URI> ОБЯЗАТЕЛЬНЫМ. Серверам следует
+устанавливать недекодированный (неразобранный) оригинальный URI (содержащий
+строку запроса) в значение этого ключа. Обратите внимание, что C<REQUEST_URI>
+совершенно необработан, даже если закодированные сущности URI-безопасны.
 
-For comparison, WSGI (PEP-333) defines both C<SCRIPT_NAME> and
-C<PATH_INFO> be decoded and Rack leaves it implementation dependent,
-while I<fixing> most of PATH_INFO left encoded in Ruby web server
-implementations.
+Для сравнения, WSGI (PEP-333) определяет C<SCRIPT_NAME> и C<PATH_INFO> как
+декодированные, и Rack оставляет это зависеть от реализации, в то время как
+I<исправление> большей части PATH_INFO осталось закодированным в реализациях
+Ruby веб-серверов.
 
 L<http://www.python.org/dev/peps/pep-0333/#url-reconstruction>
 L<http://groups.google.com/group/rack-devel/browse_thread/thread/ddf4622e69bea53f>
