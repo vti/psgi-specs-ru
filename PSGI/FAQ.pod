@@ -443,23 +443,23 @@ Middleware также может проверять, есть ли у body ме�
 
 =back
 
-=head3 What if I want to stream content or do a long-poll Comet?
+=head3 Что если я хочу стримить контент или использовать long-polling Comet технологию?
 
-The most straightforward way to implement server push is for your
-application to return a IO::Handle-like object as a content body that
-implements C<getline> to return pushed content. This is guaranteed to
-work everywhere, but it's more like I<pull> than I<push>, and it's
-hard to do non-blocking I/O unless you use Coro.
+Самый простой способ для реализации технологии push со стороны сервера это
+вернуть из приложения IO::Handle-подобный объект как body, который
+реализует метод C<getline> возвращающий push данные. Это гарантированно везде
+работает, но это больше pull, чем push, и сложно делать неблокируемый
+ввод/выдать, если только не используется Coro.
 
-If you want to do server push, where your application runs in an event
-loop and push content body to the client as it's ready, you should
-return a callback to delay the response.
+Если вы хотите делать push со стороны сервера, где приложение работает в цикле
+обработки событий (event loop) и при готовности выдает данные клиенту, следует
+вернуть callback для отложенного ответа.
 
-  # long-poll comet like a chat application
+  # long-poll comet подобное чат-приложение
   my $app = sub {
       my $env = shift;
       unless ($env->{'psgi.streaming'}) {
-          die "This application needs psgi.streaming support";
+          die "Это приложение требует поддержки psgi.streaming";
       }
       return sub {
           my $respond = shift;
@@ -471,19 +471,19 @@ return a callback to delay the response.
       };
   };
 
-C<wait_for_new_message> can be blocking or non-blocking: it's up to
-you. Most of the case you want to run it non-blockingly and should use
-event loops like L<AnyEvent>. You may also check C<psgi.nonblocking>
-value to see that it's possible and fallback to a blocking call
-otherwise.
+C<wait_for_new_message> может быть блокирующим и неблокирующим: выбор за
+разработчиком. В большинстве случаев требуется неблокирующий режим, тогда
+следует использовать цикл обработки событий (event loop), как L<AnyEvent>. Также
+можно проверить значение C<psgi.nonblocking>, и, если это не поддерживается,
+использовать блокирующий вызов.
 
-Also, to stream the content body (like streaming messages over the
-Flash socket or multipart XMLHTTPRequest):
+Для того, чтобы стримить контент (для стриминга сообщений через Flash сокет или
+multipart XMLHTTPRequest):
 
   my $app = sub {
       my $env = shift;
       unless ($env->{'psgi.streaming'}) {
-          die "This application needs psgi.streaming support";
+          die "Это приложение требует поддержки psgi.streaming";
       }
       return sub {
           my $respond = shift;
