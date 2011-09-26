@@ -547,14 +547,14 @@ Google AppEngine или Heroku), или распределённую платф�
 всё ещё могут использовать L<Plack::Middleware::BufferedStreaming> в качастве
 запасного варианта для буферизованной записи на неподдерживаемых серверах.
 
-=head3 Why CGI-style environment variables instead of HTTP headers as a hash?
+=head3 Почему переменные окружения в стиле CGI вместо хеша с HTTP заголовками?
 
-Most existing web application frameworks already have code or a handler
-to run under the CGI environment. Using CGI-style hash keys instead of
-HTTP headers makes it trivial for the framework developers to implement
-an adapter to support PSGI. For instance, L<Catalyst::Engine::PSGI> is
-only a few dozens lines different from L<Catalyst::Engine::CGI> and was
-written in less than an hour.
+Большинство существующих фреймворков для веб-приложений уже содержат код или
+обработчик для запуска в CGI-окружении. Использование CGI-подобных ключей хеша
+вместо HTTP заголовков делает тривиальной для разработчиков фреймворков задачу
+реализации адаптера для поддержки PSGI. Например, L<Catalyst::Engine::PSGI>
+всего лишь на несколько дюжин строк отличается от L<Catalyst::Engine::CGI> и
+был написан менее чем за час.
 
 =head3 Why is PATH_INFO URI decoded?
 
