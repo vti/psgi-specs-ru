@@ -585,23 +585,24 @@ Ruby веб-серверов.
 L<http://www.python.org/dev/peps/pep-0333/#url-reconstruction>
 L<http://groups.google.com/group/rack-devel/browse_thread/thread/ddf4622e69bea53f>
 
-=head1 SEE ALSO
+=head1 СМ. ТАКЖЕ
 
-WSGI's FAQ clearly answers lots of questions about how some API design
-decisions were made, some of which can directly apply to PSGI.
+WSGI FAQ ясно отвечает на множество вопросов о том, как были приняты некоторые
+решения в устройстве API, некоторые из которых можно прямо применить к PSGI.
 
 L<http://www.python.org/dev/peps/pep-0333/#questions-and-answers>
 
-=head1 MORE QUESTIONS?
+=head1 ЕЩЁ ВОПРОСЫ?
 
-If you have a question that is not answered here, or things you totally
-disagree with, come join the IRC channel #plack on irc.perl.org or
-mailing list L<http://groups.google.com/group/psgi-plack>. Be sure you
-clarify which hat you're wearing: application developers, server
-implementors or middleware developers. And don't criticize the spec just
-to criticize it: show your exact code that doesn't work or get too messy
-because of spec restrictions etc. We'll ignore all nitpicks and bikeshed
-discussion.
+Если у вас есть вопрос, на который вы не нашли ответа здесь, или есть вещи, с
+которыми вы полностью не согласны, присоединяйтесь к IRC каналу #plack на
+irc.perl.org или к списку рассылки
+L<http://groups.google.com/group/psgi-plack>. Будьте уверены, что прояснили,
+чью шляпу вы носите: разработчика приложений, разработчика серверов или
+разработчика middleware. И не критикуйте спецификацию только чтобы
+покритиковать: покажите именно тот ваш код, который не работает или получился
+слишком запутанным из-за ограничений спецификации и т.д. Мы проигнорируем все
+придирки и неконструктивную болтовню.
 
 =head1 AUTHOR
 
