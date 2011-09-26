@@ -531,21 +531,21 @@ L<Catalyst::Engine::PSGI> также поддерживает установку
 существующие, которые поддерживают асинхронный и неблокирующий стриминг
 интерфейс.
 
-=head3 Is psgi.streaming interface a requirement for the servers?
+=head3 Является ли интерфейс psgi.streaming необходимым для серверов?
 
-It is specified as B<SHOULD>, so unless there is a strong reason not
-to implement the interface, all servers are encouraged to implement
-this interface.
+Он указан в спецификации как B<SHOULD>, поэтому, если нет серьёзной причины
+отказаться от реализации интерфейса, всем серверам рекомендуется реализовывать
+этот интерфейс.
 
-However, if you implement a PSGI server using an Perl XS interface for
-the ultimate performance or integration with web servers like Apache
-or nginx, or implement a sandbox like environment (like Google
-AppEngine or Heroku) or distributed platform using tools like Gearman,
-you might not want to implement this interface.
+Тем не менее, если вы реализовываете PSGI сервер, используя Perl XS интерфейс
+для достижения максимальной производительности или интеграции с веб-серверами
+вроде Apache или nginx, или создаёте окружение типа "песочницы" (наподобие
+Google AppEngine или Heroku), или распределённую платформу, используя утилиты
+вроде Gearman, вы можете не захотеть реализовывать этот интерфейс.
 
-That's fine, and in that case applications relying on the streaming
-interface can still use L<Plack::Middleware::BufferedStreaming> to
-fallback to the buffered write on unsupported servers.
+Это прекрасно, и в этом случае приложения, основанные на потоковом интерфейсе,
+всё ещё могут использовать L<Plack::Middleware::BufferedStreaming> в качастве
+запасного варианта для буферизованной записи на неподдерживаемых серверах.
 
 =head3 Why CGI-style environment variables instead of HTTP headers as a hash?
 
