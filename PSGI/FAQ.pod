@@ -499,37 +499,37 @@ multipart XMLHTTPRequest):
       };
   };
 
-=head3 Which framework should I use to do streaming though?
+=head3 Какой же фреймворк использовать для стриминга?
 
-We have servers that support non-blocking (where C<psgi.nonblocking>
-is set to true), but the problem is that framework side doesn't
-necessarily support asynchronous event loop. For instance Catalyst has
-C<write> method on the response object:
+Есть серверы, который поддерживают неблокирующий режим (где C<psgi.nonblocking>
+имеет true значение), но проблема в том, что серверный фреймворк совсем не
+обязательно поддерживает асинхронный цикл обработки событий. Например, в
+Catalyst есть метод C<write> у объекта ответа:
 
   while ($cond) {
       $c->res->write($some_stuff);
   }
 
-This should work with all servers with C<psgi.streaming> support even
-if they are blocking, and it should be fine if they're running in
-multiple processes (C<psgi.multiprocess> is true).
+Это должно сработать с серверами поддерживающими C<psgi.streaming> даже если они
+блокирующие, и если они работают в режиме нескольких процессов
+(C<psgi.multiprocess> в значении true).
 
-L<Catalyst::Engine::PSGI> also supports setting an IO::Handle-like
-object that supports C<getline>, so using L<IO::Handle::Util>
+L<Catalyst::Engine::PSGI> также поддерживает установку IO::Handle-подобного
+объекта, который имеет C<getline> метод, пример с L<IO::Handle::Util>
 
   my $io = io_from_getline sub {
        return $data; # or undef when done()
   };
   $c->res->body($io);
 
-And that works fine to do streaming, but it's blocking (I<pull>)
-rather than asynchronous server push, so again you should be careful
-not to run this application on non-blocking (and non-multiprocess)
-server environments.
+И это работает вполне нормально для стриминга, но это скорее блокирущая операция
+(I<pull>), а не асинхронный push со стороны серверы, поэтому, опять же, стоит
+быть осторожным при запуске приложения в неблокирующем (и не многопроцессорном)
+серверном окружении.
 
-We expect that more web frameworks will appear that is focused on, or
-existent frameworks will add support for, asynchronous and
-non-blocking streaming interface.
+Ожидается, что будут появляться новые фреймворки или дорабатываться
+существующие, которые поддерживают асинхронный и неблокирующий стриминг
+интерфейс.
 
 =head3 Is psgi.streaming interface a requirement for the servers?
 
