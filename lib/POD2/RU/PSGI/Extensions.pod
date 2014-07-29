@@ -2,7 +2,7 @@
 
 =head1 НАЗВАНИЕ
 
-PSGI::Extensions - Расширения PSGI
+POD2::RU::PSGI::Extensions - Расширения PSGI
 
 =head1 Спецификация
 
